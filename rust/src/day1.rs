@@ -40,10 +40,10 @@ pub fn solve_a(filename: &str) -> Result<u32> {
     let text = read_to_string(filename)?;
     let lines = text.lines();
     let nums: Vec<_> = lines
-        .map(|line| line.chars().filter(|c| c.is_numeric()).collect::<Vec<_>>())
-        .map(|nums| {
-            nums.iter()
-                .map(|c| c.to_digit(10).expect("should be a digit"))
+        .map(|line| {
+            line.chars()
+                .filter(|c| c.is_numeric())
+                .map(|c| c.to_digit(10).unwrap())
                 .collect::<Vec<_>>()
         })
         .map(|nums| {
