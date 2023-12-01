@@ -42,8 +42,12 @@ pub fn solve_a(filename: &str) -> Result<u32> {
     let nums: Vec<_> = lines
         .map(|line| line.chars().filter(|c| c.is_numeric()).collect::<Vec<_>>())
         .map(|nums| {
-            nums.first().expect("Num must exist").to_digit(10).unwrap() * 10
-                + nums.last().expect("Num must exist").to_digit(10).unwrap()
+            nums.iter()
+                .map(|c| c.to_digit(10).expect("should be a digit"))
+                .collect::<Vec<_>>()
+        })
+        .map(|nums| {
+            nums.first().expect("Num must exist") * 10 + nums.last().expect("Num must exist")
         })
         .collect();
 
