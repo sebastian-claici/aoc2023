@@ -31,7 +31,7 @@ pub fn solve_b(filename: &str) -> Result<u32> {
     let text = read_to_string(filename)?;
     let lines = text.lines();
     let nums: Vec<_> = lines
-        .map(|line| get_digits(line))
+        .map(get_digits)
         .map(calibrate)
         .collect();
 
