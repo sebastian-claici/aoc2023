@@ -1,11 +1,8 @@
-module Day1 where
+module Main where
 
 import Data.Char (isNumber, digitToInt)
 import Data.Maybe (mapMaybe)
 import Data.List (tails, isPrefixOf)
-
-read :: String -> [String]
-read = lines
 
 -- Part A
 
@@ -19,18 +16,25 @@ solveA = sum . map (calibrate . map digitToInt . filter isNumber)
 
 mapDigit :: String -> Maybe Int
 mapDigit [] = Nothing
-mapDigit s 
-  | isPrefixOf "one" s = Just 1
-  | isPrefixOf "two" s = Just 2
-  | isPrefixOf "three" s = Just 3
-  | isPrefixOf "four" s = Just 4
-  | isPrefixOf "five" s = Just 5
-  | isPrefixOf "six" s = Just 6
-  | isPrefixOf "seven" s = Just 7
-  | isPrefixOf "eight" s = Just 8
-  | isPrefixOf "nine" s = Just 9
+mapDigit s
+  | "one" `isPrefixOf` s = Just 1
+  | "two" `isPrefixOf` s = Just 2
+  | "three" `isPrefixOf` s = Just 3
+  | "four" `isPrefixOf` s = Just 4
+  | "five" `isPrefixOf` s = Just 5
+  | "six" `isPrefixOf` s = Just 6
+  | "seven" `isPrefixOf` s = Just 7
+  | "eight" `isPrefixOf` s = Just 8
+  | "nine" `isPrefixOf` s = Just 9
   | isNumber $ head s = Just $ digitToInt $ head s
   | otherwise = Nothing
- 
+
 solveB :: [String] -> Int
 solveB = sum . map (calibrate . mapMaybe mapDigit . tails)
+
+main :: IO ()
+main = do
+  content <- readFile "../input/day1.in"
+  print . solveA . lines $ content
+  print . solveB . lines $ content
+
