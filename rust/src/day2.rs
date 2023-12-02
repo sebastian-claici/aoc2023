@@ -70,13 +70,12 @@ fn possible(game: &Game) -> bool {
 
 pub fn solve_a(filename: &str) -> Result<u32> {
     let data = read_to_string(filename)?;
-    let games: Vec<Game> = data
+    Ok(data
         .lines()
         .map(|line| parse_game(line).unwrap().1)
         .filter(possible)
-        .collect();
-
-    Ok(games.iter().map(|game| game.index).sum())
+        .map(|game| game.index)
+        .sum())
 }
 
 fn power(game: Game) -> u32 {
