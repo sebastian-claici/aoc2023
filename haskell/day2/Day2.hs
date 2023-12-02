@@ -27,7 +27,7 @@ parseColor :: Parser (String, Int)
 parseColor = do
   num <- parseInt
   spaces
-  color <- many1 letter
+  color <- choice [string "red", string "blue", string "green"]
   return (color, num)
 
 parseRound :: Parser Round
