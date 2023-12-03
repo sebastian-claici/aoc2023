@@ -5,7 +5,7 @@ use nom::{
     character::complete::{digit1, space1},
     combinator::map_res,
     multi::separated_list0,
-    sequence::separated_pair,
+    sequence::{separated_pair, delimited},
     IResult,
 };
 use std::str::FromStr;
@@ -52,9 +52,7 @@ fn parse_round(input: &str) -> IResult<&str, Round> {
 }
 
 fn parse_game(input: &str) -> IResult<&str, Game> {
-    let (input, _) = tag("Game ")(input)?;
-    let (input, index) = map_res(digit1, |s: &str| u32::from_str(s))(input)?;
-    let (input, _) = tag(": ")(input)?;
+    let (input, index) = delimited(tag("Game "), parse_number, tag(": "))(input)?;
     let (input, rounds) = separated_list0(tag("; "), parse_round)(input)?;
 
     Ok((input, Game { index, rounds }))
