@@ -1,8 +1,8 @@
 use anyhow::Result;
+use aoc_runner_derive::{aoc, aoc_generator};
 use regex::Match;
 use std::cmp::min;
 use std::collections::HashMap;
-use std::fs::read_to_string;
 
 struct Bounds {
     start_x: usize,
@@ -11,20 +11,20 @@ struct Bounds {
     end_y: usize,
 }
 
-fn find_symbols(board: &Vec<String>, bound: &Bounds) -> Result<bool> {
+fn find_symbols(board: &[String], bound: &Bounds) -> bool {
     for y in bound.start_y..=bound.end_y {
         for x in bound.start_x..=bound.end_x {
             let c = board[y].chars().nth(x).unwrap();
             if !c.is_numeric() && c != '.' {
-                return Ok(true);
+                return true;
             }
         }
     }
-    Ok(false)
+    false
 }
 
 fn find_gears(
-    board: &Vec<String>,
+    board: &[String],
     bound: &Bounds,
     num: i32,
     gears: &mut HashMap<(usize, usize), Vec<i32>>,
@@ -39,15 +39,7 @@ fn find_gears(
     }
 }
 
-fn read_board(filename: &str) -> Vec<String> {
-    read_to_string(filename)
-        .expect("Failed to read file")
-        .lines()
-        .map(|line| line.trim().to_string())
-        .collect()
-}
-
-fn get_bounds(board: &Vec<String>, line: &str, row_num: usize, mat: Match) -> Bounds {
+fn get_bounds(board: &[String], line: &str, row_num: usize, mat: Match) -> Bounds {
     Bounds {
         start_x: mat.start().saturating_sub(1),
         start_y: row_num.saturating_sub(1),
@@ -56,9 +48,14 @@ fn get_bounds(board: &Vec<String>, line: &str, row_num: usize, mat: Match) -> Bo
     }
 }
 
-pub fn solve_a(filename: &str) -> Result<i32> {
+#[aoc_generator(day3)]
+pub fn generate_input(input: &str) -> Vec<String> {
+    input.lines().map(|line| line.trim().to_string()).collect()
+}
+
+#[aoc(day3, part1)]
+pub fn solve_a(board: &[String]) -> i32 {
     let mut total = 0;
-    let board = read_board(filename);
 
     let num_pattern = regex::Regex::new(r"\d+").unwrap();
     for (row_num, line) in board.iter().enumerate() {
@@ -66,18 +63,17 @@ pub fn solve_a(filename: &str) -> Result<i32> {
             let num = mat.as_str().parse::<i32>().unwrap();
             let bound = get_bounds(&board, line, row_num, mat);
 
-            if find_symbols(&board, &bound)? {
+            if find_symbols(&board, &bound) {
                 total += num;
             }
         }
     }
 
-    Ok(total)
+    total
 }
 
-pub fn solve_b(filename: &str) -> Result<i32> {
-    let board = read_board(filename);
-
+#[aoc(day3, part2)]
+pub fn solve_b(board: &[String]) -> i32 {
     let mut gears = HashMap::new();
     let num_pattern = regex::Regex::new(r"\d+").unwrap();
     for (row_num, line) in board.iter().enumerate() {
@@ -89,9 +85,9 @@ pub fn solve_b(filename: &str) -> Result<i32> {
         }
     }
 
-    Ok(gears
+    gears
         .iter()
         .filter(|(_, v)| v.len() == 2)
         .map(|(_, v)| v[0] * v[1])
-        .sum())
+        .sum()
 }

@@ -1,5 +1,10 @@
 use anyhow::Result;
-use std::fs::read_to_string;
+use aoc_runner_derive::{aoc, aoc_generator};
+
+#[aoc_generator(day1)]
+pub fn input_generator(input: &str) -> Vec<String> {
+    input.lines().map(|s| s.trim().to_string()).collect()
+}
 
 fn get_digits(line: &str) -> Vec<u32> {
     let nums = vec![
@@ -23,33 +28,29 @@ fn get_digits(line: &str) -> Vec<u32> {
     result
 }
 
-fn calibrate(nums: Vec<u32>) -> u32 {
+fn calibrate(nums: &[u32]) -> u32 {
     nums.first().expect("Num must exist") * 10 + nums.last().expect("Num must exist")
 }
 
-pub fn solve_b(filename: &str) -> Result<u32> {
-    let text = read_to_string(filename)?;
-    let lines = text.lines();
-    let nums: Vec<_> = lines
-        .map(get_digits)
-        .map(calibrate)
-        .collect();
-
-    Ok(nums.iter().sum())
+#[aoc(day1, part2)]
+pub fn solve_b(input: &[String]) -> u32 {
+    input
+        .iter()
+        .map(|line| get_digits(&line))
+        .map(|digits| calibrate(&digits))
+        .sum()
 }
 
-pub fn solve_a(filename: &str) -> Result<u32> {
-    let text = read_to_string(filename)?;
-    let lines = text.lines();
-    let nums: Vec<_> = lines
+#[aoc(day1, part1)]
+pub fn solve_a(input: &[String]) -> u32 {
+    input
+        .iter()
         .map(|line| {
             line.chars()
                 .filter(|c| c.is_numeric())
                 .map(|c| c.to_digit(10).unwrap())
-                .collect::<Vec<_>>()
+                .collect::<Vec<u32>>()
         })
-        .map(calibrate)
-        .collect();
-
-    Ok(nums.iter().sum())
+        .map(|digits| calibrate(&digits))
+        .sum()
 }

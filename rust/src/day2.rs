@@ -1,15 +1,16 @@
 use anyhow::Result;
+use aoc_runner_derive::{aoc, aoc_generator};
 use nom::{
     branch::alt,
     bytes::complete::tag,
     character::complete::{digit1, space1},
     combinator::map_res,
     multi::separated_list0,
-    sequence::{separated_pair, delimited},
+    sequence::{delimited, separated_pair},
     IResult,
 };
+use std::cmp::max;
 use std::str::FromStr;
-use std::{cmp::max, fs::read_to_string};
 
 #[derive(Debug)]
 struct Round {
@@ -19,7 +20,7 @@ struct Round {
 }
 
 #[derive(Debug)]
-struct Game {
+pub struct Game {
     index: u32,
     rounds: Vec<Round>,
 }
@@ -64,17 +65,7 @@ fn possible(game: &Game) -> bool {
         .all(|round| round.red <= 12 && round.green <= 13 && round.blue <= 14)
 }
 
-pub fn solve_a(filename: &str) -> Result<u32> {
-    let data = read_to_string(filename)?;
-    Ok(data
-        .lines()
-        .map(|line| parse_game(line).unwrap().1)
-        .filter(possible)
-        .map(|game| game.index)
-        .sum())
-}
-
-fn power(game: Game) -> u32 {
+fn power(game: &Game) -> u32 {
     let best = game.rounds.iter().fold((0, 0, 0), |acc, r| {
         (max(acc.0, r.red), max(acc.1, r.green), max(acc.2, r.blue))
     });
@@ -82,11 +73,24 @@ fn power(game: Game) -> u32 {
     best.0 * best.1 * best.2
 }
 
-pub fn solve_b(filename: &str) -> Result<u32> {
-    let data = read_to_string(filename)?;
-    Ok(data
+#[aoc_generator(day2)]
+pub fn generate_input(input: &str) -> Vec<Game> {
+    input
         .lines()
         .map(|line| parse_game(line).unwrap().1)
-        .map(power)
-        .sum())
+        .collect()
+}
+
+#[aoc(day2, part1)]
+pub fn solve_a(games: &[Game]) -> u32 {
+    games
+        .iter()
+        .filter(|&game| possible(game))
+        .map(|game| game.index)
+        .sum()
+}
+
+#[aoc(day2, part2)]
+pub fn solve_b(games: &[Game]) -> u32 {
+    games.iter().map(|game| power(&game)).sum()
 }
