@@ -1,4 +1,6 @@
 use anyhow::Result;
+use regex::Match;
+use std::cmp::min;
 use std::collections::HashMap;
 use std::fs::read_to_string;
 
@@ -12,11 +14,9 @@ struct Bounds {
 fn find_symbols(board: &Vec<String>, bound: &Bounds) -> Result<bool> {
     for y in bound.start_y..=bound.end_y {
         for x in bound.start_x..=bound.end_x {
-            if y < board.len() && x < board[y].len() {
-                let c = board[y].chars().nth(x).unwrap();
-                if !c.is_numeric() && c != '.' {
-                    return Ok(true);
-                }
+            let c = board[y].chars().nth(x).unwrap();
+            if !c.is_numeric() && c != '.' {
+                return Ok(true);
             }
         }
     }
@@ -31,11 +31,9 @@ fn find_gears(
 ) {
     for y in bound.start_y..=bound.end_y {
         for x in bound.start_x..=bound.end_x {
-            if y < board.len() && x < board[y].len() {
-                let c = board[y].chars().nth(x).unwrap();
-                if c == '*' {
-                    gears.entry((y, x)).or_insert(vec![]).push(num)
-                }
+            let c = board[y].chars().nth(x).unwrap();
+            if c == '*' {
+                gears.entry((y, x)).or_insert(vec![]).push(num)
             }
         }
     }
@@ -49,6 +47,15 @@ fn read_board(filename: &str) -> Vec<String> {
         .collect()
 }
 
+fn get_bounds(board: &Vec<String>, line: &str, row_num: usize, mat: Match) -> Bounds {
+    Bounds {
+        start_x: mat.start().saturating_sub(1),
+        start_y: row_num.saturating_sub(1),
+        end_x: min(mat.end(), line.len() - 1),
+        end_y: min(row_num + 1, board.len() - 1),
+    }
+}
+
 pub fn solve_a(filename: &str) -> Result<i32> {
     let mut total = 0;
     let board = read_board(filename);
@@ -57,12 +64,7 @@ pub fn solve_a(filename: &str) -> Result<i32> {
     for (row_num, line) in board.iter().enumerate() {
         for mat in num_pattern.find_iter(line) {
             let num = mat.as_str().parse::<i32>().unwrap();
-            let bound = Bounds {
-                start_x: mat.start().saturating_sub(1),
-                start_y: row_num.saturating_sub(1),
-                end_x: mat.end(),
-                end_y: row_num + 1,
-            };
+            let bound = get_bounds(&board, line, row_num, mat);
 
             if find_symbols(&board, &bound)? {
                 total += num;
@@ -80,13 +82,9 @@ pub fn solve_b(filename: &str) -> Result<i32> {
     let num_pattern = regex::Regex::new(r"\d+").unwrap();
     for (row_num, line) in board.iter().enumerate() {
         for mat in num_pattern.find_iter(line) {
-            let bound = Bounds {
-                start_x: mat.start().saturating_sub(1),
-                start_y: row_num.saturating_sub(1),
-                end_x: mat.end(),
-                end_y: row_num + 1,
-            };
             let num = mat.as_str().parse::<i32>().unwrap();
+            let bound = get_bounds(&board, line, row_num, mat);
+
             find_gears(&board, &bound, num, &mut gears);
         }
     }
