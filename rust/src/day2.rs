@@ -1,5 +1,6 @@
 use anyhow::Result;
 use nom::{
+    branch::alt,
     bytes::complete::tag,
     character::complete::{digit1, space1},
     combinator::map_res,
@@ -7,8 +8,8 @@ use nom::{
     sequence::separated_pair,
     IResult,
 };
-use std::fs::read_to_string;
 use std::str::FromStr;
+use std::{cmp::max, fs::read_to_string};
 
 #[derive(Debug)]
 struct Round {
@@ -27,30 +28,27 @@ fn parse_number(input: &str) -> IResult<&str, u32> {
     map_res(digit1, |s: &str| u32::from_str(s))(input)
 }
 
-fn parse_color(input: &str) -> IResult<&str, (u32, &str)> {
-    separated_pair(parse_number, space1, tag("red"))(input)
-        .or(separated_pair(parse_number, space1, tag("green"))(input))
-        .or(separated_pair(parse_number, space1, tag("blue"))(input))
-}
-
 fn parse_round(input: &str) -> IResult<&str, Round> {
-    let (input, parts) = separated_list0(tag(", "), parse_color)(input)?;
-    let mut round = Round {
-        red: 0,
-        green: 0,
-        blue: 0,
-    };
+    let (input, parts) = separated_list0(
+        tag(", "),
+        separated_pair(
+            parse_number,
+            space1,
+            alt((tag("red"), tag("green"), tag("blue"))),
+        ),
+    )(input)?;
+    let (mut red, mut green, mut blue) = (0, 0, 0);
 
     for (amount, color) in parts {
         match color {
-            "red" => round.red = amount,
-            "green" => round.green = amount,
-            "blue" => round.blue = amount,
+            "red" => red = amount,
+            "green" => green = amount,
+            "blue" => blue = amount,
             _ => {}
         }
     }
 
-    Ok((input, round))
+    Ok((input, Round { red, green, blue }))
 }
 
 fn parse_game(input: &str) -> IResult<&str, Game> {
@@ -79,17 +77,11 @@ pub fn solve_a(filename: &str) -> Result<u32> {
 }
 
 fn power(game: Game) -> u32 {
-    let mut min_red = 0;
-    let mut min_green = 0;
-    let mut min_blue = 0;
+    let best = game.rounds.iter().fold((0, 0, 0), |acc, r| {
+        (max(acc.0, r.red), max(acc.1, r.green), max(acc.2, r.blue))
+    });
 
-    for round in &game.rounds {
-        min_red = std::cmp::max(min_red, round.red);
-        min_green = std::cmp::max(min_green, round.green);
-        min_blue = std::cmp::max(min_blue, round.blue);
-    }
-
-    min_red * min_green * min_blue
+    best.0 * best.1 * best.2
 }
 
 pub fn solve_b(filename: &str) -> Result<u32> {

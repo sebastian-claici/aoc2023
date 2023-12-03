@@ -1,5 +1,6 @@
 use rust::day1;
 use rust::day2;
+use rust::day3;
 
 use clap::Parser;
 
@@ -21,6 +22,10 @@ fn main() {
             println!("{}", day2::solve_a("./input/day2.in").unwrap());
             println!("{}", day2::solve_b("./input/day2.in").unwrap());
         },
+        3 => {
+            println!("{}", day3::solve_a("./input/day3.in").unwrap());
+            println!("{}", day3::solve_b("./input/day3.in").unwrap());
+        }
         _ => todo!("Not implemented yet")
     }
 }
