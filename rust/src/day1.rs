@@ -7,10 +7,10 @@ pub fn input_generator(input: &str) -> Vec<String> {
 }
 
 fn get_digits(line: &str) -> Vec<u32> {
-    let nums = vec![
+    let nums = [
         "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
     ];
-    let digits = vec![1, 2, 3, 4, 5, 6, 7, 8, 9];
+    let digits = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
     let mut result = vec![];
     for (i, c) in line.chars().enumerate() {
@@ -36,7 +36,7 @@ fn calibrate(nums: &[u32]) -> u32 {
 pub fn solve_b(input: &[String]) -> u32 {
     input
         .iter()
-        .map(|line| get_digits(&line))
+        .map(|line| get_digits(line))
         .map(|digits| calibrate(&digits))
         .sum()
 }

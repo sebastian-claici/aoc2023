@@ -33,7 +33,7 @@ fn find_gears(
         for x in bound.start_x..=bound.end_x {
             let c = board[y].chars().nth(x).unwrap();
             if c == '*' {
-                gears.entry((y, x)).or_insert(vec![]).push(num)
+                gears.entry((y, x)).or_default().push(num)
             }
         }
     }
@@ -61,9 +61,9 @@ pub fn solve_a(board: &[String]) -> i32 {
     for (row_num, line) in board.iter().enumerate() {
         for mat in num_pattern.find_iter(line) {
             let num = mat.as_str().parse::<i32>().unwrap();
-            let bound = get_bounds(&board, line, row_num, mat);
+            let bound = get_bounds(board, line, row_num, mat);
 
-            if find_symbols(&board, &bound) {
+            if find_symbols(board, &bound) {
                 total += num;
             }
         }
@@ -79,9 +79,9 @@ pub fn solve_b(board: &[String]) -> i32 {
     for (row_num, line) in board.iter().enumerate() {
         for mat in num_pattern.find_iter(line) {
             let num = mat.as_str().parse::<i32>().unwrap();
-            let bound = get_bounds(&board, line, row_num, mat);
+            let bound = get_bounds(board, line, row_num, mat);
 
-            find_gears(&board, &bound, num, &mut gears);
+            find_gears(board, &bound, num, &mut gears);
         }
     }
 

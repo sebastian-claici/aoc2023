@@ -92,5 +92,5 @@ pub fn solve_a(games: &[Game]) -> u32 {
 
 #[aoc(day2, part2)]
 pub fn solve_b(games: &[Game]) -> u32 {
-    games.iter().map(|game| power(&game)).sum()
+    games.iter().map(power).sum()
 }

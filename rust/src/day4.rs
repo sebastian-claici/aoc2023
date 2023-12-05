@@ -15,7 +15,7 @@ pub struct Card {
 }
 
 impl Card {
-    fn overlap(self: &Self) -> usize {
+    fn overlap(&self) -> usize {
         self.held
             .iter()
             .filter(|x| self.winning.contains(x))
