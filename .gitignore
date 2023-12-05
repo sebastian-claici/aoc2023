@@ -40,3 +40,5 @@ cabal.project.local~
 
 # input files
 *.in
+rust/input/
+rust/tmp/
