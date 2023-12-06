@@ -26,6 +26,25 @@ fn parse_input(input: &str) -> IResult<&str, Data> {
     Ok((input, Data { time, distance }))
 }
 
+pub fn quadratic(a: f64, b: f64, c: f64) -> Option<(f64, f64)> {
+    let z = (b * b - 4. * a * c).sqrt(); 
+    if z < 0.0 {
+        None
+    } else {
+        Some(((-b - z) / (2. * a), (-b + z) / (2. * a)))
+    }
+}
+
+fn solve(time: u64, distance: u64) -> usize {
+    if let Some((a, b)) = quadratic(1.0, -(time as f64), distance as f64) {
+        let a = a.ceil().max(0.0) as u64;
+        let b = b.floor() as u64;
+        (b - a + 1) as usize
+    } else {
+        0
+    }
+}
+
 #[aoc_generator(day6)]
 pub fn generate_input(input: &str) -> Data {
     parse_input(input).unwrap().1
@@ -36,7 +55,7 @@ pub fn solve_a(data: &Data) -> usize {
     data.time
         .iter()
         .zip(data.distance.iter())
-        .map(|(&time, &distance)| (0..=time).filter(|x| (time - x) * x > distance).count())
+        .map(|(time, distance)| solve(*time, *distance))
         .product()
 }
 
@@ -49,5 +68,5 @@ pub fn solve_b(data: &Data) -> usize {
         .parse::<u64>()
         .unwrap();
 
-    (0..=time).filter(|x| (time - x) * x > distance).count()
+    solve(time, distance)
 }
