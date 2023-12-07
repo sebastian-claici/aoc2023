@@ -7,7 +7,6 @@ use nom::{
     sequence::{separated_pair, terminated},
     IResult,
 };
-use std::cmp;
 use std::collections::HashMap;
 
 #[derive(Debug, PartialEq, Eq, Copy, Clone, Hash, Ord, PartialOrd)]
@@ -36,7 +35,7 @@ impl Card {
 }
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
-enum Hand {
+enum Rank {
     HighCard,
     Pair,
     TwoPair,
@@ -46,18 +45,24 @@ enum Hand {
     Fives,
 }
 
-impl Hand {
-    fn new(cards: &[Card]) -> Self {
+type Hand = [Card; 5];
+
+fn swap(hand: &Hand, from: Card, to: Card) -> Hand {
+    hand.into_iter()
+        .map(|card| if *card == from { to } else { *card })
+        .collect::<Vec<_>>()
+        .try_into()
+        .unwrap()
+}
+
+impl Rank {
+    fn new(cards: &Hand) -> Self {
         let mut counts = HashMap::new();
         let _ = cards
             .iter()
             .for_each(|card| *counts.entry(card).or_insert(0) += 1);
 
-        let counts: Vec<_> = counts
-            .values()
-            .sorted()
-            .rev()
-            .collect();
+        let counts: Vec<_> = counts.values().sorted().rev().collect();
         match counts[..] {
             [5] => Self::Fives,
             [4, 1] => Self::Fours,
@@ -69,51 +74,25 @@ impl Hand {
         }
     }
 
-    fn best(cards: &[Card]) -> Self {
+    fn best(hand: &Hand) -> Self {
         let mut opts: Vec<_> = (2..=9).map(|x| Card::Num(x)).collect();
         opts.extend([Card::T, Card::Q, Card::K, Card::A]);
 
         opts.iter()
             .map(|opt| {
-                let mut tmp_cards = [Card::J; 5];
-                for (i, card) in cards.iter().enumerate() {
-                    tmp_cards[i] = match *card {
-                        Card::Joker => *opt,
-                        _ => *card,
-                    }
-                }
-                Hand::new(&tmp_cards)
+                let new_hand = swap(&hand, Card::Joker, *opt);
+                Rank::new(&new_hand)
             })
             .max()
             .unwrap()
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 struct Round {
-    cards: [Card; 5],
+    rank: Rank,
     hand: Hand,
     bid: u32,
-}
-
-impl Ord for Round {
-    fn cmp(&self, other: &Self) -> cmp::Ordering {
-        if self.hand.cmp(&other.hand) != cmp::Ordering::Equal {
-            return self.hand.cmp(&other.hand);
-        }
-        for (c1, c2) in self.cards.iter().zip(other.cards.iter()) {
-            if c1.cmp(c2) != cmp::Ordering::Equal {
-                return c1.cmp(c2);
-            }
-        }
-        cmp::Ordering::Equal
-    }
-}
-
-impl PartialOrd for Round {
-    fn partial_cmp(&self, other: &Self) -> Option<cmp::Ordering> {
-        Some(self.cmp(other))
-    }
 }
 
 #[derive(Debug)]
@@ -124,13 +103,15 @@ pub struct Data {
 fn parse_round(input: &str) -> IResult<&str, Round> {
     let (input, (hand, bid)) = separated_pair(alphanumeric1, tag(" "), u32)(input)?;
 
-    let mut cards = [Card::A; 5];
-    for (i, c) in hand.chars().enumerate() {
-        cards[i] = Card::new(c);
-    }
-    let hand = Hand::new(&cards);
+    let hand = hand
+        .chars()
+        .map(Card::new)
+        .collect::<Vec<_>>()
+        .try_into()
+        .unwrap();
+    let rank = Rank::new(&hand);
 
-    Ok((input, Round { cards, hand, bid }))
+    Ok((input, Round { rank, hand, bid }))
 }
 
 fn parse_input(input: &str) -> IResult<&str, Data> {
@@ -159,16 +140,10 @@ pub fn solve_b(data: &Data) -> u32 {
         .rounds
         .iter()
         .map(|round| {
-            let mut new_cards = [Card::J; 5];
-            for (i, card) in round.cards.into_iter().enumerate() {
-                new_cards[i] = match card {
-                    Card::J => Card::Joker,
-                    _ => card,
-                }
-            }
+            let hand = swap(&round.hand, Card::J, Card::Joker);
             Round {
-                cards: new_cards,
-                hand: Hand::best(&new_cards),
+                hand,
+                rank: Rank::best(&hand),
                 bid: round.bid,
             }
         })
