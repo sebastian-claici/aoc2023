@@ -127,8 +127,9 @@ pub fn generate_input(input: &str) -> Data {
 
 #[aoc(day7, part1)]
 pub fn solve_a(data: &Data) -> u32 {
-    let v: Vec<_> = data.rounds.iter().sorted().collect();
-    v.iter()
+    data.rounds
+        .iter()
+        .sorted()
         .enumerate()
         .map(|(i, round)| ((i + 1) as u32) * round.bid)
         .sum()
@@ -136,8 +137,7 @@ pub fn solve_a(data: &Data) -> u32 {
 
 #[aoc(day7, part2)]
 pub fn solve_b(data: &Data) -> u32 {
-    let v: Vec<_> = data
-        .rounds
+    data.rounds
         .iter()
         .map(|round| {
             let hand = swap(&round.hand, Card::J, Card::Joker);
@@ -148,9 +148,6 @@ pub fn solve_b(data: &Data) -> u32 {
             }
         })
         .sorted()
-        .collect();
-
-    v.iter()
         .enumerate()
         .map(|(i, round)| ((i + 1) as u32) * round.bid)
         .sum()
