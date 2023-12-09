@@ -10,12 +10,7 @@ use nom::{
 };
 
 pub fn lcm(nums: &[usize]) -> usize {
-    if nums.len() == 1 {
-        return nums[0];
-    }
-    let a = nums[0];
-    let b = lcm(&nums[1..]);
-    a * b / gcd(a, b)
+    nums.iter().fold(1, |acc, &x| acc * x / gcd(acc, x))
 }
 
 fn gcd(a: usize, b: usize) -> usize {
@@ -41,10 +36,12 @@ fn parse_input(input: &str) -> IResult<&str, Data> {
         )),
     )(input)?;
 
-    let mut edges = HashMap::new();
-    tups.into_iter().for_each(|(src, _, lft, _, rht, _)| {
-        edges.insert(src.to_string(), (lft.to_string(), rht.to_string()));
-    });
+    let edges = tups
+        .into_iter()
+        .fold(HashMap::new(), |mut acc, (src, _, lft, _, rht, _)| {
+            acc.insert(src.to_string(), (lft.to_string(), rht.to_string()));
+            acc
+        });
 
     Ok((
         input,
