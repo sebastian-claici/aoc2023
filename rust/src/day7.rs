@@ -23,7 +23,7 @@ enum Card {
 impl Card {
     fn new(c: char) -> Self {
         match c {
-            '2'..='9' => Card::Num(c as u8 - '0' as u8),
+            '2'..='9' => Card::Num(c as u8 - b'0'),
             'J' => Card::J,
             'T' => Card::T,
             'Q' => Card::Q,
@@ -48,7 +48,7 @@ enum Rank {
 type Hand = [Card; 5];
 
 fn swap(hand: &Hand, from: Card, to: Card) -> Hand {
-    hand.into_iter()
+    hand.iter()
         .map(|card| if *card == from { to } else { *card })
         .collect::<Vec<_>>()
         .try_into()
@@ -57,10 +57,10 @@ fn swap(hand: &Hand, from: Card, to: Card) -> Hand {
 
 impl Rank {
     fn new(cards: &Hand) -> Self {
-        let mut counts = HashMap::new();
-        let _ = cards
-            .iter()
-            .for_each(|card| *counts.entry(card).or_insert(0) += 1);
+        let counts = cards.iter().fold(HashMap::new(), |mut acc, card| {
+            *acc.entry(card).or_insert(0) += 1;
+            acc
+        });
 
         let counts: Vec<_> = counts.values().sorted().rev().collect();
         match counts[..] {
@@ -75,12 +75,12 @@ impl Rank {
     }
 
     fn best(hand: &Hand) -> Self {
-        let mut opts: Vec<_> = (2..=9).map(|x| Card::Num(x)).collect();
+        let mut opts: Vec<_> = (2..=9).map(Card::Num).collect();
         opts.extend([Card::T, Card::Q, Card::K, Card::A]);
 
         opts.iter()
             .map(|opt| {
-                let new_hand = swap(&hand, Card::Joker, *opt);
+                let new_hand = swap(hand, Card::Joker, *opt);
                 Rank::new(&new_hand)
             })
             .max()

@@ -64,7 +64,7 @@ fn apply_map(map: &[(u64, u64, u64)], seed: u64) -> u64 {
     result
 }
 
-fn apply_maps(maps: &Vec<Vec<(u64, u64, u64)>>, seed: u64) -> u64 {
+fn apply_maps(maps: &[Vec<(u64, u64, u64)>], seed: u64) -> u64 {
     maps.iter().fold(seed, |acc, map| apply_map(map, acc))
 }
 

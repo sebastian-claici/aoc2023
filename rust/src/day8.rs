@@ -81,10 +81,10 @@ pub fn solve_a(data: &Data) -> usize {
 
 #[aoc(day8, part2)]
 pub fn solve_b(data: &Data) -> usize {
-    let nodes: Vec<_> = data.edges.keys().filter(|s| s.ends_with("A")).collect();
+    let nodes: Vec<_> = data.edges.keys().filter(|s| s.ends_with('A')).collect();
     let lens: Vec<_> = nodes
         .iter()
-        .map(|node| search(&data, node.to_string(), |s| s.ends_with("Z")))
+        .map(|node| search(data, node.to_string(), |s| s.ends_with('Z')))
         .collect();
 
     lcm(&lens)
