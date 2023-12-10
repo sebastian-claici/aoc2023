@@ -82,7 +82,7 @@ pub fn solve_b(data: &Data) -> i64 {
             break;
         }
     }
-    let on_loop: HashSet<(usize, usize)> = bfs(data, start).into_keys().collect();
+    let on_loop: HashSet<_> = bfs(data, start).into_keys().collect();
 
     let mut ans = 0;
     for (i, row) in data.iter().enumerate() {
