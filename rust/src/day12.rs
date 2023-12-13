@@ -77,8 +77,7 @@ pub fn solve_a(data: &Data) -> usize {
 pub fn solve_b(data: &Data) -> usize {
     let mut ans = 0;
     for (s, groups) in data.iter() {
-        let mut copied_s = [s.as_slice(), &[b'?']].concat().repeat(5);
-        copied_s.pop();
+        let mut copied_s = [&s[..], &[b'?']].concat().repeat(5).tap_mut(|v| { v.pop(); });
         let copied_groups = groups.repeat(5);
 
         let mut cache = HashMap::new();
