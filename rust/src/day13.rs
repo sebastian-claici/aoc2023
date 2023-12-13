@@ -29,8 +29,8 @@ pub fn generate_input(input: &str) -> Data {
     data
 }
 
-fn transpose(pattern: &Pattern) -> Pattern {
-    let mut transposed = Pattern::new();
+fn transpose<T>(pattern: &Vec<Vec<T>>) -> Vec<Vec<T>> where T: Clone + Copy {
+    let mut transposed = vec![];
     let (r, c) = (pattern.len(), pattern[0].len());
     for j in 0..c {
         let mut row = vec![];
