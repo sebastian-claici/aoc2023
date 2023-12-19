@@ -21,26 +21,23 @@ while queue:
     if state == "A":
         ans += prod(hi - lo for _, (lo, hi) in ranges.items())
         continue
-    elif state == "R":
+    if state == "R":
         continue
 
-    rule = rules[state]
-    for cmd in rule:
+    for cmd in rules[state]:
         if ":" in cmd:
             cond, nxt = cmd.split(":")
-            var = cond[0]
-            op = cond[1]
-            x = int(cond[2:])
+            var, op, x = cond[0], cond[1], int(cond[2:])
 
-            new_ranges = {k: v for k, v in ranges.items() if k != var}
-            low, hi = ranges[var]
+            old_ranges = {k: v for k, v in ranges.items() if k != var}
+            lo, hi = ranges[var]
             if op == '<':
-                queue.append((nxt, {var: (low, x), **new_ranges}))
-                ranges = {var: (x, hi), **new_ranges}
+                queue.append((nxt, {var: (lo, x), **old_ranges}))
+                ranges = {var: (x, hi), **old_ranges}
             else:
-                queue.append((nxt, {var: (x + 1, hi), **new_ranges}))
-                ranges = {var: (low, x + 1), **new_ranges}
+                queue.append((nxt, {var: (x + 1, hi), **old_ranges}))
+                ranges = {var: (lo, x + 1), **old_ranges}
         else:
             queue.append((cmd, ranges))
-            break
+
 print(ans)
