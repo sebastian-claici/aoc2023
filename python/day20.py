@@ -1,4 +1,4 @@
-from collections import deque, defaultdict
+from collections import deque, defaultdict, Counter
 from copy import deepcopy
 from math import lcm
 
@@ -22,7 +22,7 @@ def push(graph, flips, nands, src, dst, pulse):
 
 def run(graph, flips, nands):
     queue = deque([("button", "broadcaster", False)])
-    counts = defaultdict(int)
+    counts = Counter()
 
     while queue:
         src, dst, pulse = queue.popleft()
@@ -76,11 +76,9 @@ for src, dsts in graph.items():
 flips_f = deepcopy(flips)
 nands_f = deepcopy(nands)
 
-counts = defaultdict(int)
+counts = Counter()
 for _ in range(1000):
-    round = run(graph, flips, nands)
-    counts[True] += round[True]
-    counts[False] += round[False]
+    counts += run(graph, flips, nands)
 
 ans = counts[True] * counts[False]
 print(ans)
