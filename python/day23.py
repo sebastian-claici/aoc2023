@@ -28,23 +28,6 @@ def make_graph(grid):
     return edges
 
 
-def make_graph_p2(grid):
-    edges = defaultdict(set)
-    for r, row in enumerate(grid):
-        for c, ch in enumerate(row):
-            if ch not in '>v.':
-                continue
-            for dr, dc in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
-                if not (0 <= r + dr < len(grid) and 0 <= c + dc < len(row)):
-                    continue
-                if grid[r + dr][c + dc] not in '>v.':
-                    continue
-                edges[(r, c)].add(((r + dr, c + dc), 1))
-                edges[(r + dr, c + dc)].add(((r, c), 1))
-
-    return edges
-
-
 def compress_graph(graph):
     while True:
         for node, neighbors in graph.items():
@@ -90,6 +73,11 @@ graph = make_graph(grid)
 R, C = len(grid), len(grid[0])
 print(bfs(graph, (0, 1), (R - 1, C - 2)))
 
-graph = make_graph_p2(grid)
+for r, row in enumerate(grid):
+    for c, ch in enumerate(row):
+        if ch == '>' or ch == 'v':
+            grid[r][c] = '.'
+
+graph = make_graph(grid)
 graph = compress_graph(graph)
 print(bfs(graph, (0, 1), (R - 1, C - 2)))
