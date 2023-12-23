@@ -45,7 +45,7 @@ def compress_graph(graph):
     return graph
 
 
-def bfs(graph, src, dst):
+def dfs(graph, src, dst):
     queue = deque([(src, 0)])
     visited = set()
     best = 0
@@ -71,7 +71,7 @@ def bfs(graph, src, dst):
 
 graph = make_graph(grid)
 R, C = len(grid), len(grid[0])
-print(bfs(graph, (0, 1), (R - 1, C - 2)))
+print(dfs(graph, (0, 1), (R - 1, C - 2)))
 
 for r, row in enumerate(grid):
     for c, ch in enumerate(row):
@@ -80,4 +80,4 @@ for r, row in enumerate(grid):
 
 graph = make_graph(grid)
 graph = compress_graph(graph)
-print(bfs(graph, (0, 1), (R - 1, C - 2)))
+print(dfs(graph, (0, 1), (R - 1, C - 2)))
